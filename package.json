@@ -1,17 +1,37 @@
 {
   "name": "@kindling/heat",
   "version": "0.1.0",
-  "description": "Heat — reputation-weighted routing oracle for the agent economy. /heat/score, /heat/route, /heat/trust.",
+  "description": "Reputation-weighted routing oracle for the agent economy. /heat/score, /heat/route, /heat/trust, /heat/compose.",
   "author": "Permanent Upper Class",
   "license": "MIT",
+  "homepage": "https://github.com/Kind-ling/heat",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kind-ling/heat.git"
+  },
   "type": "module",
-  "main": "./dist/api/server.js",
+  "main": "./dist/src/api/server.js",
+  "exports": {
+    ".": "./dist/src/api/server.js",
+    "./scorer": "./dist/src/graph/scorer.js",
+    "./router": "./dist/src/oracle/router.js",
+    "./composer": "./dist/src/oracle/composer.js",
+    "./pagerank": "./dist/src/graph/pagerank.js",
+    "./antisybil": "./dist/src/graph/antisybil.js",
+    "./indexer": "./dist/src/indexer/moltbook.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "start": "node dist/api/server.js",
+    "start": "node dist/src/api/server.js",
     "dev": "tsx src/api/server.ts",
     "build": "tsc",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "devDependencies": {
     "typescript": "^5.3.0",
