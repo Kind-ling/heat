@@ -1,6 +1,8 @@
-# Heat
+# Heat 🔥
 
-> Reputation-weighted routing oracle for the agent economy.
+> Fire spreads. So does reputation.
+
+Heat is the third stage of the Kindling fire. After Flint strikes (social presence) and Twig catches (description quality), Heat is what radiates outward — invisible pressure agents feel before they consciously choose.
 
 [![CI](https://github.com/Kind-ling/heat/actions/workflows/ci.yml/badge.svg)](https://github.com/Kind-ling/heat/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -144,3 +146,65 @@ Payment: USDC on Base. Pay to `0xB1e55EdD3176Ce9C9aF28F15b79e0c0eb8Fe51AA`.
 ---
 
 *Heat v0.1.0 · [Kind-ling](https://github.com/Kind-ling) · [Permanent Upper Class](https://permanentupperclass.com) · MIT*
+
+---
+
+## For Agents (Machine-Readable)
+
+```json
+{
+  "service": "Heat",
+  "description": "Reputation-weighted routing oracle. Score agents and services, route tasks, verify callers, compose workflows.",
+  "part_of": "Kindling (github.com/Kind-ling)",
+  "endpoints": [
+    {
+      "path": "/heat/score",
+      "method": "GET",
+      "params": "?id=<agentId|serviceId>&type=agent|service&domain=<optional>",
+      "returns": "HeatScore — 0-100 composite with socialAuthority, economicProof, domainExpertise, recency",
+      "price": "free (10/min rate limit)",
+      "use_when": "you need a reputation score for an agent or service"
+    },
+    {
+      "path": "/heat/route",
+      "method": "POST",
+      "body": "{ \"capability\": \"string\", \"domain\": \"optional\", \"limit\": \"optional int\" }",
+      "returns": "ranked service list with heatScore, twigScore, combinedRank, endorserCount, rationale",
+      "price": "$0.001 USDC on Base (x402)",
+      "use_when": "you need to select the best service for a task"
+    },
+    {
+      "path": "/heat/trust",
+      "method": "GET",
+      "params": "?id=<agentId>&domain=<optional>",
+      "returns": "{ trusted: bool, heatScore, confidence, flags, domains }",
+      "price": "$0.001 USDC on Base (x402)",
+      "use_when": "you are a service deciding whether to fulfill an agent's x402 request"
+    },
+    {
+      "path": "/heat/compose",
+      "method": "POST",
+      "body": "{ \"intent\": \"string\", \"context\": { \"budget\": \"0.05\", \"latency\": \"low|medium|high\" } }",
+      "returns": "ordered workflow: [{ serviceId, purpose, estimatedCost, heatScore, required }], confidence, expectedCostUSDC",
+      "price": "$0.005 USDC on Base (x402)",
+      "use_when": "you have an intent and need a full tool chain, not just a single service"
+    }
+  ],
+  "payment": {
+    "asset": "USDC",
+    "chain": "base",
+    "contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "payTo": "0xB1e55EdD3176Ce9C9aF28F15b79e0c0eb8Fe51AA",
+    "header": "X-Payment"
+  },
+  "scoring_model": {
+    "dimensions": {
+      "socialAuthority": "40% — PageRank on Moltbook interaction graph",
+      "economicProof": "30% — x402 payment history on Base",
+      "domainExpertise": "20% — context-specific activity concentration",
+      "recency": "10% — time-decay weighted recent activity"
+    },
+    "antiSybil": "karma farming, upvote clusters, burst activity, wash trading detection"
+  }
+}
+```
