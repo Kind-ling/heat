@@ -184,3 +184,10 @@ Patterns that repeat get promoted to this file as permanent rules.
 
 *Last updated: 2026-03-28*
 *This file is append-only for rules. Remove rules only during monthly cleanup.*
+
+## Agent Kit
+- `.claude/agents/implementer.md` — sonnet, write code, follow plan exactly
+- `.claude/agents/reviewer.md` — opus, read-only, structured pass/warn/fail
+- `.claude/commands/` — /plan /execute /review /mistake /spec
+- `MISTAKES.md` — error corpus, append-only
+- `specs/` — spec history

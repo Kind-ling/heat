@@ -1,0 +1,30 @@
+{
+  "model": "claude-sonnet-4-5",
+  "agents": {
+    "implementer": {
+      "model": "claude-sonnet-4-5",
+      "description": "Implementation tasks — well-specified, mechanical code"
+    },
+    "reviewer": {
+      "model": "claude-opus-4-5",
+      "description": "Security review, spec compliance, payment code audit"
+    }
+  },
+  "modelRouting": {
+    "architecture": "opus — design decisions, scoring rubric design, taste",
+    "implementation": "sonnet — pure functions, well-specified behavior",
+    "tests": "sonnet — mechanical, well-specified",
+    "security_review": "opus — payment handling, auth, fail-open logic",
+    "documentation": "sonnet — spec-driven output"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm test)",
+      "Bash(npm run build)",
+      "Bash(npm run typecheck)",
+      "Bash(git status)",
+      "Bash(git log*)",
+      "Bash(git diff*)"
+    ]
+  }
+}
