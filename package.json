@@ -1,5 +1,5 @@
 {
-  "name": "@kindling/heat",
+  "name": "@kind-ling/heat",
   "version": "0.1.0",
   "description": "Reputation-weighted routing oracle for the agent economy. /heat/score, /heat/route, /heat/trust, /heat/compose.",
   "author": "Permanent Upper Class",
