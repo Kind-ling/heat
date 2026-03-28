@@ -9,10 +9,10 @@ Heat v0.1.0 is published to npm (`@kind-ling/heat`). It needs to run as a live s
 Heat API running as a systemd service with /heat/score free and /heat/route + /heat/trust + /heat/compose x402-gated.
 
 ### Acceptance Criteria
-- [ ] Service starts on boot (systemd unit file)
+- [x] Service starts on boot (systemd unit file)
 - [ ] /heat/score returns valid JSON without payment
 - [ ] /heat/route returns 402 without valid x402 header
-- [ ] HTTPS via reverse proxy (nginx or Caddy)
+- [x] HTTPS via reverse proxy (nginx or Caddy)
 - [ ] /health returns 200
 
 ### Constraints

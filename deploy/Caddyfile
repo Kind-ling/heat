@@ -1,0 +1,53 @@
+# Caddyfile — Heat reverse proxy (Caddy v2)
+# Place at: /etc/caddy/Caddyfile  (or include from your main Caddyfile)
+# Reload:   sudo systemctl reload caddy
+#
+# Replace "your.domain.com" with your actual domain for auto-HTTPS.
+# Use ":80" or "localhost" for local/non-TLS setups.
+
+your.domain.com {
+    # Proxy /heat/* to Heat service
+    handle /heat/* {
+        reverse_proxy localhost:3001 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+
+            transport http {
+                dial_timeout 5s
+                response_header_timeout 30s
+            }
+        }
+    }
+
+    # Health check passthrough
+    handle /health {
+        reverse_proxy localhost:3001 {
+            header_up Host {host}
+        }
+    }
+
+    # Security headers for all responses
+    header {
+        X-Content-Type-Options  "nosniff"
+        X-Frame-Options         "DENY"
+        X-XSS-Protection        "1; mode=block"
+        Referrer-Policy         "no-referrer"
+        # Caddy adds HSTS automatically for HTTPS hosts
+        -Server
+    }
+
+    # Rate limiting (requires caddy-ratelimit plugin)
+    # If not installed, remove this block
+    # rate_limit {
+    #     zone heat {
+    #         key {remote_host}
+    #         events 10
+    #         window 1s
+    #     }
+    # }
+
+    # Deny everything else
+    respond 404
+}

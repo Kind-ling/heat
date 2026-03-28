@@ -149,6 +149,22 @@ Payment: USDC on Base. Pay to `0xB1e55EdD3176Ce9C9aF28F15b79e0c0eb8Fe51AA`.
 
 ---
 
+## Deployment
+
+### Quick deploy (Ubuntu/Debian)
+```bash
+git clone https://github.com/Kind-ling/heat
+cd heat
+sudo ./scripts/setup-env.sh   # configure HEAT_PAYMENT_ADDRESS
+sudo ./scripts/deploy.sh      # install, systemd, start
+```
+
+### Reverse proxy
+- Nginx: `deploy/nginx.conf`
+- Caddy: `deploy/Caddyfile`
+
+---
+
 ## For Agents (Machine-Readable)
 
 ```json
