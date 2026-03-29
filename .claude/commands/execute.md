@@ -1,23 +1,18 @@
 # Execute an approved plan
 
 Read CLAUDE.md for project conventions.
-Read the plan we just agreed on.
+Read the approved plan.
 
-The plan has been approved. Now execute it:
+Execute it:
+1. Follow the plan exactly. Do not deviate or add features.
+2. If the plan needs changes, STOP and explain. Do not improvise.
+3. Write all code in one pass for simple plans; step by step for complex ones.
+4. Run tests after implementation.
+5. Report: files created, files modified, tests passing/failing, anything surprising.
 
-1. **Follow the plan exactly.** Do not deviate, add features, or "improve" things that weren't in the plan.
-2. **If you discover the plan needs changes**, STOP immediately and explain what needs to change and why. Do not improvise.
-3. **Write all code in one pass** if the plan is simple. For complex plans, implement step by step and confirm after each step.
-4. **Run tests** after implementation. Report results.
-5. **Report what you did:**
-   - Files created
-   - Files modified
-   - Tests passing/failing
-   - Anything that surprised you
-
-**Constraints:**
+Hard constraints:
 - Named exports only (no default exports)
 - No `any` types
-- No `console.log` (use structured logger)
-- Tests in `tests/` directory, not `src/__tests__/`
-- Conventional commits for any git operations
+- No `console.log` in production code
+- Tests in `tests/` mirroring `src/` structure
+- Conventional commits

@@ -2,25 +2,22 @@
 
 Read CLAUDE.md for project conventions and current product state.
 
-I'm going to describe a task in plain English. Convert it into a structured spec using this exact format:
+I'm going to describe a task in plain English. Convert it into a structured spec:
 
 ```markdown
 ## Task: [One-line description]
 
 ### Context
-[What needs to be known about the project state]
+[Project state relevant to this task]
 
 ### Goal
 [What "done" looks like in plain English]
 
 ### Acceptance Criteria
 - [ ] [Specific, testable criterion]
-- [ ] [Specific, testable criterion]
-- [ ] [Specific, testable criterion]
 
 ### Constraints
 - [Tech stack constraints from CLAUDE.md]
-- [Patterns to follow]
 - [Things NOT to do — reference MISTAKES.md]
 
 ### Files to Touch
@@ -28,11 +25,9 @@ I'm going to describe a task in plain English. Convert it into a structured spec
 
 ### Verify By
 - [How to check without reading the code]
-- [Tests, endpoints, UI checks]
 
 ### Model Routing
-- [Suggested model: opus/sonnet/codex/flash]
-- [Reason for routing choice]
+- [opus/sonnet/flash — and why]
 ```
 
-Ask me clarifying questions if my description is too vague to write a good spec. Don't fill in gaps with assumptions — surface them as questions.
+Ask clarifying questions if my description is too vague. Don't fill gaps with assumptions.

@@ -203,3 +203,19 @@ Patterns that repeat get promoted to this file as permanent rules.
 | `specs/` | Spec history |
 
 Loop: `/spec` → `/plan` → iterate → `/execute` → `/review` → commit → `/mistake`
+
+## Agent Workflow (agentify)
+
+Loop: `/spec` → `/plan` → iterate → `/execute` → `/review` → commit → `/mistake`
+
+| File | Purpose |
+|------|---------|
+| `.claude/agents/implementer.md` | sonnet — write code, follow plan exactly |
+| `.claude/agents/reviewer.md` | opus — read-only, structured 🟢/🟡/🔴 |
+| `.claude/commands/spec.md` | /spec — intent → structured spec |
+| `.claude/commands/plan.md` | /plan — architecture plan, no code |
+| `.claude/commands/execute.md` | /execute — approved plan execution |
+| `.claude/commands/review.md` | /review — spec + security + conventions |
+| `.claude/commands/mistake.md` | /mistake — log error, feed corpus |
+| `MISTAKES.md` | Error corpus — append-only, weekly → CLAUDE.md |
+| `specs/` | Spec history |
