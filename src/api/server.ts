@@ -199,6 +199,23 @@ async function handleCompose(req: IncomingMessage, res: ServerResponse): Promise
   json(res, 200, { ...result, powered_by: 'Kindling Heat' });
 }
 
+const AGENT_JSON = JSON.stringify({
+  name: 'Heat',
+  description: 'Signal indexing and trust scoring for the agent economy. Route tasks to proven agents, verify callers, compose multi-agent workflows.',
+  url: 'https://heat.kind-ling.com',
+  provider: { organization: 'Kind-ling', url: 'https://kind-ling.com' },
+  version: '0.1.0',
+  capabilities: ['agent-scoring', 'trust-verification', 'query-routing', 'workflow-composition'],
+  endpoints: [
+    { path: '/heat/score', method: 'GET', description: 'Score an agent or service', price: 'free', params: { id: 'string', type: 'agent|service', domain: 'string?' } },
+    { path: '/heat/route', method: 'POST', description: 'Route query to highest-signal agent', price: '$0.001 USDC on Base', input: { capability: 'string', domain: 'string?', limit: 'number?' } },
+    { path: '/heat/trust', method: 'GET', description: 'Get trust profile for an agent', price: '$0.001 USDC on Base', params: { id: 'string' } },
+    { path: '/heat/compose', method: 'POST', description: 'Compose multi-agent workflow', price: '$0.005 USDC on Base', input: { goal: 'string', agents: 'string[]?' } },
+  ],
+  x402: { supported: true, chain: 'base', token: 'USDC', payment_address: X402_WALLET },
+  tags: ['agent-routing', 'trust-scoring', 'mcp', 'agent-economy', 'x402'],
+}, null, 2);
+
 const server = createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*' });
@@ -210,7 +227,10 @@ const server = createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', `http://localhost:${PORT}`);
     const path = url.pathname;
 
-    if (path === '/health') {
+    if (path === '/.well-known/agent.json') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(AGENT_JSON);
+    } else if (path === '/health') {
       json(res, 200, { status: 'ok', service: 'heat', version: '0.1.0' });
     } else if (path === '/heat/score' && req.method === 'GET') {
       await handleScore(req, res, url);
