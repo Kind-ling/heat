@@ -156,15 +156,15 @@ function detectTemporalShift(source: string, claim: string): DriftDetail | null 
       // Claim is more specific
       return {
         category: 'precision_added',
-        source: sourceTemporals[0]?.marker || null,
-        claim: claimTemporals[0]?.marker || null,
+        source: sourceTemporals[0]?.marker ?? null,
+        claim: claimTemporals[0]?.marker ?? null,
         description: 'Claim adds temporal precision not in source',
       };
     }
 
     // Check for different temporal references (actual shift)
-    const sourceMarker = sourceTemporals[0]?.marker;
-    const claimMarker = claimTemporals[0]?.marker;
+    const sourceMarker = sourceTemporals[0]?.marker ?? null;
+    const claimMarker = claimTemporals[0]?.marker ?? null;
     if (sourceMarker && claimMarker && sourceMarker !== claimMarker) {
       return {
         category: 'temporal_shift',
@@ -180,7 +180,7 @@ function detectTemporalShift(source: string, claim: string): DriftDetail | null 
     return {
       category: 'precision_added',
       source: null,
-      claim: claimTemporals[0]?.marker || null,
+      claim: claimTemporals[0]?.marker ?? null,
       description: 'Claim adds temporal specificity not in source',
     };
   }
