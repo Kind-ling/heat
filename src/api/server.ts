@@ -199,6 +199,127 @@ async function handleCompose(req: IncomingMessage, res: ServerResponse): Promise
   json(res, 200, { ...result, powered_by: 'Kindling Heat' });
 }
 
+const MCP_TOOLS = [
+  {
+    name: 'score',
+    description: 'Score an agent or service by its on-chain/off-chain reputation. Returns a Heat score and trust dimensions. Free.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'Agent or service ID' },
+        type: { type: 'string', enum: ['agent', 'service'], description: 'Entity type' },
+        domain: { type: 'string', description: 'Optional domain filter (e.g. crypto-defi, search)' },
+      },
+      required: ['id', 'type'],
+    },
+  },
+  {
+    name: 'route',
+    description: 'Route a capability query to the highest-signal agents/services. Returns ranked list with scores.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        capability: { type: 'string', description: 'The capability or task to route (e.g. "summarize text", "price lookup")' },
+        domain: { type: 'string', description: 'Optional domain hint' },
+        limit: { type: 'number', description: 'Max results (default 5)' },
+      },
+      required: ['capability'],
+    },
+  },
+  {
+    name: 'trust',
+    description: 'Get the full trust profile for an agent including reputation dimensions.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'Agent ID' },
+        domain: { type: 'string', description: 'Optional domain context' },
+      },
+      required: ['id'],
+    },
+  },
+];
+
+const MCP_SERVER_CARD = JSON.stringify({
+  name: 'heat',
+  title: 'Heat by Kind-ling',
+  description: 'Signal indexing and trust scoring for the agent economy.',
+  version: '0.1.0',
+  homepage: 'https://kind-ling.com',
+  tools: MCP_TOOLS,
+}, null, 2);
+
+async function handleMCP(req: IncomingMessage, res: ServerResponse): Promise<void> {
+  let body = '';
+  req.on('data', chunk => { body += chunk; });
+  await new Promise(resolve => req.on('end', resolve));
+
+  let rpc: { jsonrpc: string; id: unknown; method: string; params?: Record<string, unknown> };
+  try {
+    rpc = JSON.parse(body) as typeof rpc;
+  } catch {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.end(JSON.stringify({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } }));
+    return;
+  }
+
+  const { id, method, params } = rpc;
+
+  const reply = (result: unknown) => {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.end(JSON.stringify({ jsonrpc: '2.0', id, result }));
+  };
+  const replyError = (code: number, message: string) => {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.end(JSON.stringify({ jsonrpc: '2.0', id, error: { code, message } }));
+  };
+
+  if (method === 'initialize') {
+    reply({ protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'heat', version: '0.1.0' } });
+    return;
+  }
+  if (method === 'notifications/initialized') {
+    res.writeHead(204); res.end(); return;
+  }
+  if (method === 'tools/list') {
+    reply({ tools: MCP_TOOLS }); return;
+  }
+  if (method === 'tools/call') {
+    const toolName = (params as { name?: string })?.name;
+    const args = (params as { arguments?: Record<string, unknown> })?.arguments ?? {};
+    const { agents, interactions, services } = await loadGraph();
+
+    if (toolName === 'score') {
+      const { id: agentId, type, domain } = args as { id: string; type: 'agent' | 'service'; domain?: string };
+      if (!agentId || !type) { replyError(-32602, 'id and type required'); return; }
+      const score = type === 'agent'
+        ? scoreAgent(agentId, agents, interactions, domain)
+        : scoreService(agentId, agents, interactions, undefined, domain);
+      reply({ content: [{ type: 'text', text: JSON.stringify({ score, powered_by: 'Kindling Heat' }, null, 2) }] });
+      return;
+    }
+    if (toolName === 'route') {
+      const { capability, domain, limit } = args as { capability: string; domain?: string; limit?: number };
+      if (!capability) { replyError(-32602, 'capability required'); return; }
+      const results = routeQuery({ capability, domain, limit }, services, agents, interactions);
+      reply({ content: [{ type: 'text', text: JSON.stringify({ results, count: results.length, powered_by: 'Kindling Heat' }, null, 2) }] });
+      return;
+    }
+    if (toolName === 'trust') {
+      const { id: agentId, domain } = args as { id: string; domain?: string };
+      if (!agentId) { replyError(-32602, 'id required'); return; }
+      const heatScore = scoreAgent(agentId, agents, interactions, domain);
+      const agent = agents.find(a => a.id === agentId);
+      const trust = agentToTrustResult(agentId, heatScore, agent);
+      reply({ content: [{ type: 'text', text: JSON.stringify({ trust, powered_by: 'Kindling Heat' }, null, 2) }] });
+      return;
+    }
+    replyError(-32601, `Unknown tool: ${toolName as string}`); return;
+  }
+
+  replyError(-32601, `Method not found: ${method}`);
+}
+
 const AGENT_JSON = JSON.stringify({
   name: 'Heat',
   description: 'Signal indexing and trust scoring for the agent economy. Route tasks to proven agents, verify callers, compose multi-agent workflows.',
@@ -227,7 +348,12 @@ const server = createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', `http://localhost:${PORT}`);
     const path = url.pathname;
 
-    if (path === '/.well-known/agent.json') {
+    if (path === '/mcp' && req.method === 'POST') {
+      await handleMCP(req, res);
+    } else if (path === '/.well-known/mcp/server-card.json') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(MCP_SERVER_CARD);
+    } else if (path === '/.well-known/agent.json') {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
       res.end(AGENT_JSON);
     } else if (path === '/health') {
